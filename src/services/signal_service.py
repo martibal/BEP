@@ -22,7 +22,7 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 
-from config.settings import CHAINS
+from src.config.settings import CHAINS
 from src.models.signal_generator import DailySignal, SignalGenerator
 from src.utils import validators
 from src.utils.logger import get_logger

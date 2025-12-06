@@ -30,7 +30,7 @@ from botocore import UNSIGNED
 from botocore.config import Config
 from botocore.exceptions import ClientError, EndpointConnectionError, ReadTimeoutError
 
-from config.settings import (
+from src.config.settings import (
     AWS_BUCKET,
     AWS_REGION,
     AWS_NO_SIGN_REQUEST,

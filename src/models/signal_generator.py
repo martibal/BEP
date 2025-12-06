@@ -41,7 +41,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from config.settings import CHAINS
+from src.config.settings import CHAINS
 from src.utils import validators
 from src.utils.logger import get_logger
 

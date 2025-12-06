@@ -35,7 +35,7 @@ try:  # pragma: no cover - environment dependent
 except ImportError:  # pragma: no cover - environment dependent
     lgb = None
 
-from config.settings import MODEL_DIR
+from src.config.settings import MODEL_DIR
 from src.models.predictor import _ModelLike
 from src.utils import validators
 from src.utils.logger import get_logger

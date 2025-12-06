@@ -9,15 +9,10 @@ This module is responsible for:
 - Including all API routers under a versioned prefix.
 - Defining root and health endpoints.
 - Installing global exception handlers.
-
-Specification reference:
-- API main specification (Claude prompt 30). :contentReference[oaicite:0]{index=0}
-- Endelig kravspesifikasjon (Styringsdokument BEP). :contentReference[oaicite:1]{index=1}
-- Arkitektur-dokument (prosjektstruktur og ansvar). :contentReference[oaicite:2]{index=2}
 """
 
-from datetime import datetime, timezone
-from typing import Any, Dict
+from datetime import date, datetime, timezone
+from typing import Any, Dict, Literal, Optional
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -30,7 +25,7 @@ from src.api.schemas import (
     HealthCheckResponse,
     ValidationErrorResponse,
 )
-from src.api.routes import alerts, signals
+from src.api.routes import alerts, chains, signals
 from src.utils.logger import get_logger, setup_logging
 
 logger = get_logger("api.main")
@@ -43,9 +38,11 @@ def configure_routers(app: FastAPI) -> None:
     Routers:
     - signals.router → /api/v1/signals
     - alerts.router  → /api/v1/alerts
+    - chains.router  → /api/v1/chains
     """
     app.include_router(signals.router, prefix="/api/v1", tags=["signals"])
     app.include_router(alerts.router, prefix="/api/v1", tags=["alerts"])
+    app.include_router(chains.router, prefix="/api/v1", tags=["chains"])
 
 
 def configure_cors(app: FastAPI) -> None:
@@ -160,18 +157,88 @@ def get_application() -> FastAPI:
     )
     async def health() -> HealthCheckResponse:
         """
-        Lightweight health check endpoint.
+        Health check endpoint with database connectivity verification.
 
         Returns HTTP 200 OK with HealthCheckResponse containing:
-        - status: always "OK"
-        - version: API version string
+        - status: "healthy", "degraded", or "unhealthy"
         - timestamp: current UTC time
+        - database_connected: whether DuckDB is accessible
+        - latest_signal_age_hours: hours since last signal (if available)
+        - version: API version string
+
+        Status logic:
+        - "healthy": DB connected and signal < 24 hours old
+        - "degraded": DB connected but signal 24–48 hours old, or DB OK but no signals yet
+        - "unhealthy": DB not connected or signal > 48 hours old
         """
+        from src.utils import db_handler
+
         now_utc = datetime.now(timezone.utc)
+
+        # Default values
+        database_connected = False
+        latest_signal_age_hours: Optional[float] = None
+        status_value: Literal["healthy", "degraded", "unhealthy"] = "unhealthy"
+
+        try:
+            # Attempt to get latest signal to verify DB connectivity
+            latest_signal = db_handler.get_latest_signal("BTC")
+            database_connected = True
+
+            if latest_signal is not None:
+                signal_date = latest_signal.get("date")
+                signal_dt: Optional[datetime] = None
+
+                if isinstance(signal_date, datetime):
+                    signal_dt = signal_date
+                elif isinstance(signal_date, date):
+                    signal_dt = datetime.combine(
+                        signal_date,
+                        datetime.min.time(),
+                        tzinfo=timezone.utc,
+                    )
+                elif isinstance(signal_date, str):
+                    try:
+                        parsed = datetime.fromisoformat(signal_date)
+                        if parsed.tzinfo is None:
+                            parsed = parsed.replace(tzinfo=timezone.utc)
+                        signal_dt = parsed
+                    except ValueError:
+                        logger.warning(
+                            "Health check: could not parse signal_date %r", signal_date
+                        )
+
+                if signal_dt is not None:
+                    if signal_dt.tzinfo is None:
+                        signal_dt = signal_dt.replace(tzinfo=timezone.utc)
+                    age = now_utc - signal_dt
+                    latest_signal_age_hours = age.total_seconds() / 3600.0
+
+                    # Determine status based on signal age
+                    if latest_signal_age_hours <= 24:
+                        status_value = "healthy"
+                    elif latest_signal_age_hours <= 48:
+                        status_value = "degraded"
+                    else:
+                        status_value = "unhealthy"
+                else:
+                    # DB connected but we couldn't parse signal date
+                    status_value = "degraded"
+            else:
+                # DB connected but no signals yet
+                status_value = "degraded"
+
+        except Exception as exc:  # pragma: no cover - defensive logging
+            logger.warning("Health check: database connection failed: %s", exc)
+            database_connected = False
+            status_value = "unhealthy"
+
         return HealthCheckResponse(
-            status="OK",
-            version=API_VERSION,
+            status=status_value,
             timestamp=now_utc,
+            database_connected=database_connected,
+            latest_signal_age_hours=latest_signal_age_hours,
+            version=API_VERSION,
         )
 
     return app

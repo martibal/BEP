@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 import numpy as np
 import polars as pl
 
-from config import settings
+from src.config import settings
 from src.models.model_loader import ModelLoader
 from src.models.signal_generator import SignalGenerator
 from src.services.data_service import DataService

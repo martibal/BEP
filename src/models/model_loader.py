@@ -7,7 +7,7 @@ from typing import Any, Dict
 import numpy as np
 from joblib import load as joblib_load
 
-from config.settings import MODEL_DIR, NORMALIZER_PARAMS_PATH
+from src.config.settings import MODEL_DIR, NORMALIZER_PARAMS_PATH
 from src.models.predictor import Predictor as ModelPredictor
 from src.utils.logger import get_logger
 

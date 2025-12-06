@@ -24,7 +24,7 @@ from typing import Any, Dict, Union, List
 import pandas as pd
 import polars as pl
 
-from config.settings import CHAINS
+from src.config.settings import CHAINS
 from src.utils.logger import get_logger
 
 # ---------------------------------------------------------------------------

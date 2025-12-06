@@ -63,6 +63,10 @@ DB_PATH: Path = DB_DIR / "signals.duckdb"
 MODEL_DIR: Path = DATA_DIR / "models"
 NORMALIZATION_DIR: Path = DATA_DIR / "normalization"
 
+# Path to the JSON file containing feature normalization parameters.
+# This file stores mean/std values computed during training.
+NORMALIZER_PARAMS_PATH: Path = NORMALIZATION_DIR / "norm_params.json"
+
 # ============================================================================
 # 5. AWS S3 CONFIGURATION
 # ============================================================================
@@ -135,7 +139,20 @@ S3_FETCH_TIMEOUT_SEC: int = 30
 S3_FETCH_RETRIES: int = 3
 
 # ============================================================================
-# 10. HELPER FUNCTIONS
+# 10. API CONFIGURATION
+# ============================================================================
+
+# Maximum number of days for alert history queries.
+# Used by /api/v1/alerts/history endpoint to limit lookback period.
+MAX_ALERT_HISTORY_DAYS: int = 90
+
+# Number of days to offset from today when running inference.
+# Typically 1, meaning we generate signals for "yesterday" since
+# blockchain data for "today" may not be complete until after midnight UTC.
+INFERENCE_DATE_OFFSET_DAYS: int = 1
+
+# ============================================================================
+# 11. HELPER FUNCTIONS
 # ============================================================================
 
 

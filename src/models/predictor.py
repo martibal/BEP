@@ -19,7 +19,7 @@ from typing import Any, Dict, Optional, Protocol, runtime_checkable
 import joblib
 import numpy as np
 import pandas as pd
-from config.settings import MODEL_DIR
+from src.config.settings import MODEL_DIR
 from src.utils.logger import get_logger
 
 

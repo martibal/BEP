@@ -23,7 +23,7 @@ from typing import Any, Callable, Dict, Optional, Type
 
 import polars as pl
 
-from config.settings import CHAINS, TMP_DIR
+from src.config.settings import CHAINS, TMP_DIR
 from src.features.base import AggregatedFeatures, BaseFeature, RawBlockchainData
 from src.utils import aws_client, validators
 from src.utils.logger import get_logger

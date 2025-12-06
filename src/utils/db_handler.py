@@ -26,7 +26,7 @@ from typing import Any, Dict, Iterator, List, Optional
 
 import duckdb
 
-from config.settings import CHAINS, DB_PATH
+from src.config.settings import CHAINS, DB_PATH
 from src.utils import validators
 from src.utils.logger import get_logger
 

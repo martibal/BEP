@@ -25,7 +25,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from config.settings import (
+from src.config.settings import (
     LOG_FILE,
     LOG_LEVEL,
     LOG_MAX_BYTES,

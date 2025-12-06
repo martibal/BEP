@@ -20,7 +20,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from config.settings import NORMALIZER_PARAMS_PATH
+from src.config.settings import NORMALIZER_PARAMS_PATH
 from src.features.normalizer import FeatureNormalizer
 from src.models.predictor import Predictor, ModelLoadingError
 from src.utils import validators

@@ -9,7 +9,7 @@ import math
 import pandas as pd
 import yaml
 
-from config.settings import CHAINS, NORMALIZATION_DIR
+from src.config.settings import CHAINS, NORMALIZATION_DIR
 from src.features.normalizer import FeatureNormalizer
 from src.services.data_service import DataService
 from src.utils import validators

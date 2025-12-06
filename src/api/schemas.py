@@ -19,6 +19,8 @@ __all__ = [
     "SignalHistoryResponse",
     "AlertListResponse",
     "ChainStatusResponse",
+    "ChainSummary",
+    "ChainListResponse",
     "HealthCheckResponse",
     "SignalHistoryParams",
     "AlertsQueryParams",
@@ -164,6 +166,30 @@ class ChainStatusResponse(BaseModel):
     model_version: Optional[str] = None
     last_model_trained_at: Optional[datetime] = None
     status: Literal["healthy", "degraded", "unhealthy"]
+
+
+class ChainSummary(BaseModel):
+    """
+    Kort oppsummering av én kjede for listevisning.
+
+    Brukes av GET /api/v1/chains endpoint for å gi en
+    kompakt oversikt over alle støttede kjeder.
+    """
+
+    chain: ChainEnum
+    latest_signal_date: Optional[date] = None
+    status: Literal["healthy", "degraded", "unhealthy"]
+
+
+class ChainListResponse(BaseModel):
+    """
+    Liste over alle støttede kjeder med status.
+
+    Brukes av GET /api/v1/chains endpoint.
+    """
+
+    chains: List[ChainSummary]
+    count: int
 
 
 class HealthCheckResponse(BaseModel):
